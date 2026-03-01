@@ -31,5 +31,7 @@ parameter choices provide sufficient margin.
 
 ## References
 
-- Neptune specification (Filecoin documentation)
-- Inherits from: Grassi et al. "Poseidon" (2021)
+- [Neptune specification](https://github.com/filecoin-project/neptune) (Filecoin
+  documentation)
+- Inherits from: Grassi et al. ["Poseidon"](https://eprint.iacr.org/2019/458)
+  (2021)

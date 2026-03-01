@@ -42,5 +42,7 @@ lookup has no simple polynomial description. The security argument combines:
 
 ## References
 
-- Tip5 specification
-- Alan Szepieniec. "The Tip5 Hash Function for the Triton VM" (2023)
+- [Tip5 specification](https://eprint.iacr.org/2023/107)
+- Alan Szepieniec.
+  ["The Tip5 Hash Function for the Triton VM"](https://eprint.iacr.org/2023/107)
+  (2023)

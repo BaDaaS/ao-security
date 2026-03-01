@@ -73,6 +73,9 @@ breaking potential invariant structures.
 
 ## References
 
-- Jakobsen, Knudsen. "The Interpolation Attack on Block Ciphers" (FSE 1997)
-- Grassi et al. "Poseidon: A New Hash Function for Zero-Knowledge Proof Systems"
+- Jakobsen, Knudsen.
+  ["The Interpolation Attack on Block Ciphers"](https://doi.org/10.1007/BFb0052332)
+  (FSE 1997)
+- Grassi et al.
+  ["Poseidon: A New Hash Function for Zero-Knowledge Proof Systems"](https://eprint.iacr.org/2019/458)
   (USENIX Security 2021), Section 5

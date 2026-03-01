@@ -47,6 +47,10 @@ completeness in security analyses of Rescue and Anemoi.
 
 ## References
 
-- Matsui. "Linear Cryptanalysis Method for DES Cipher" (EUROCRYPT 1993)
-- Knudsen, Wagner. "Integral Cryptanalysis" (FSE 2002)
-- Grassi et al. "Rescue" (2020), Section on statistical properties
+- Matsui.
+  ["Linear Cryptanalysis Method for DES Cipher"](https://doi.org/10.1007/3-540-48285-7_33)
+  (EUROCRYPT 1993)
+- Knudsen, Wagner.
+  ["Integral Cryptanalysis"](https://doi.org/10.1007/3-540-45473-X_8) (FSE 2002)
+- Grassi et al. ["Rescue"](https://eprint.iacr.org/2020/1143) (2020), Section on
+  statistical properties

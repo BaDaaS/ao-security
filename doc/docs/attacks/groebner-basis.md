@@ -191,13 +191,20 @@ for g in G:
 
 ## References
 
-- Buchberger. "An Algorithm for Finding the Basis Elements of the Residue Class
-  Ring of a Zero Dimensional Polynomial Ideal" (1965)
-- Faugere. "A New Efficient Algorithm for Computing Groebner Bases (F4)" (1999)
-- Faugere. "A New Efficient Algorithm for Computing Groebner Bases without
-  Reduction to Zero (F5)" (2002)
-- Courtois, Klimov, Patarin, Shamir. "Efficient Algorithms for Solving
-  Overdefined Systems of Multivariate Polynomial Equations" (EUROCRYPT 2000)
-- Bariant, Peyrin. "Algebraic Attacks against Some Arithmetization-Oriented
-  Primitives" (2022)
-- Keller, Rosemarin. "STARK Friendly Hash Survey" (2020)
+- Buchberger.
+  ["An Algorithm for Finding the Basis Elements of the Residue Class Ring of a Zero Dimensional Polynomial Ideal"](<https://doi.org/10.1016/S0747-7171(06)80016-2>)
+  (1965, English translation 2006)
+- Faugere.
+  ["A New Efficient Algorithm for Computing Groebner Bases (F4)"](<https://doi.org/10.1016/S0022-4049(99)00005-5>)
+  (1999)
+- Faugere.
+  ["A New Efficient Algorithm for Computing Groebner Bases without Reduction to Zero (F5)"](https://doi.org/10.1145/780506.780516)
+  (2002)
+- Courtois, Klimov, Patarin, Shamir.
+  ["Efficient Algorithms for Solving Overdefined Systems of Multivariate Polynomial Equations"](https://doi.org/10.1007/3-540-45539-6_27)
+  (EUROCRYPT 2000)
+- Bariant, Peyrin.
+  ["Algebraic Attacks against Some Arithmetization-Oriented Primitives"](https://eprint.iacr.org/2022/1058)
+  (2022)
+- Keller, Rosemarin.
+  ["STARK Friendly Hash Survey"](https://eprint.iacr.org/2020/948) (2020)

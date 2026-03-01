@@ -83,6 +83,8 @@ print(f"Max differential probability: {max_prob}/{p} = {float(max_prob/p):.6f}")
 
 ## References
 
-- Biham, Shamir. "Differential Cryptanalysis of DES-like Cryptosystems" (Journal
-  of Cryptology, 1991)
-- Grassi et al. "Poseidon" (2021), Section on differential analysis
+- Biham, Shamir.
+  ["Differential Cryptanalysis of DES-like Cryptosystems"](https://doi.org/10.1007/BF00630563)
+  (Journal of Cryptology, 1991)
+- Grassi et al. ["Poseidon"](https://eprint.iacr.org/2019/458) (2021), Section
+  on differential analysis

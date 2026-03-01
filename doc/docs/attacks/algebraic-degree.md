@@ -96,5 +96,8 @@ for r in range(6):
 ## References
 
 - Lai. "Higher Order Derivatives and Differential Cryptanalysis" (1994)
-- Grassi. "Algebraic Degree of Poseidon" (2021)
-- Bariant et al. "Algebraic Attacks on AO Primitives" (2022)
+- Grassi. ["Algebraic Degree of Poseidon"](https://eprint.iacr.org/2020/500)
+  (2021)
+- Bariant et al.
+  ["Algebraic Attacks on AO Primitives"](https://eprint.iacr.org/2022/1058)
+  (2022)

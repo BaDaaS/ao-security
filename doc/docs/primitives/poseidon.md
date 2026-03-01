@@ -107,6 +107,8 @@ Reference implementation: `sage/poseidon/permutation.sage`
 - Grassi, Khovratovich, Rechberger, Roy, Schofnegger. "Poseidon: A New Hash
   Function for Zero-Knowledge Proof Systems" (USENIX Security 2021)
   [ePrint 2019/458](https://eprint.iacr.org/2019/458)
-- Keller, Rosemarin. "STARK Friendly Hash" (2020)
-- Bariant, Peyrin. "Algebraic Attacks against Some Arithmetization-Oriented
-  Primitives" (2022)
+- Keller, Rosemarin. ["STARK Friendly Hash"](https://eprint.iacr.org/2020/948)
+  (2020)
+- Bariant, Peyrin.
+  ["Algebraic Attacks against Some Arithmetization-Oriented Primitives"](https://eprint.iacr.org/2022/1058)
+  (2022)
