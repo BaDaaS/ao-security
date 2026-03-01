@@ -52,6 +52,14 @@ which is precisely what makes it potentially easier to solve.
 
 ## Macaulay matrices
 
+(See Macaulay.
+["Some Properties of Enumeration in the Theory of Modular Systems"](https://doi.org/10.1112/plms/s2-26.1.531)
+(Proc. London Math. Soc., 1927),
+[Wikipedia: Macaulay matrix](https://en.wikipedia.org/wiki/Macaulay_matrix), and
+Cox, Little, O'Shea.
+["Ideals, Varieties, and Algorithms"](https://doi.org/10.1007/978-3-319-16721-3)
+(Springer, 4th ed. 2015), Chapter 9.)
+
 A **Macaulay matrix** is the central data structure in modern Groebner basis
 algorithms. It encodes a system of polynomial equations as a matrix suitable for
 linear algebra.
@@ -141,6 +149,14 @@ print(M3.echelon_form())
 
 ## S-polynomials
 
+(See
+[Wikipedia: Groebner basis](https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis#Buchberger's_algorithm),
+Cox, Little, O'Shea.
+["Ideals, Varieties, and Algorithms"](https://doi.org/10.1007/978-3-319-16721-3)
+(Springer, 4th ed. 2015), Chapter 2, and Buchberger.
+["An Algorithm for Finding the Basis Elements of the Residue Class Ring of a Zero Dimensional Polynomial Ideal"](<https://doi.org/10.1016/S0747-7171(06)80016-2>)
+(1965, English translation 2006).)
+
 The **S-polynomial** (syzygy polynomial) is the fundamental operation in
 Groebner basis algorithms. Given two polynomials $f$ and $g$ with leading
 monomials $\text{LM}(f)$ and $\text{LM}(g)$, the S-polynomial is designed to
@@ -160,12 +176,6 @@ by construction.
 zero, then the basis is a Groebner basis (this is Buchberger's criterion). If an
 S-polynomial does not reduce to zero, its remainder is a new polynomial that
 must be added to the basis. This is the core loop of Buchberger's algorithm.
-
-See
-[Wikipedia: Groebner basis](https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis#Buchberger's_algorithm)
-and Cox, Little, O'Shea.
-["Ideals, Varieties, and Algorithms"](https://doi.org/10.1007/978-3-319-16721-3)
-(Springer, 4th ed. 2015), Chapter 2.
 
 <!-- prettier-ignore-start -->
 <SageCell code={`
@@ -205,6 +215,12 @@ for i, gi in enumerate(G):
 
 ### Buchberger's algorithm
 
+(See
+[Wikipedia: Buchberger's algorithm](https://en.wikipedia.org/wiki/Buchberger%27s_algorithm)
+and Buchberger.
+["An Algorithm for Finding the Basis Elements of the Residue Class Ring of a Zero Dimensional Polynomial Ideal"](<https://doi.org/10.1016/S0747-7171(06)80016-2>)
+(1965, English translation 2006).)
+
 The original algorithm (1965) for computing Groebner bases. It iteratively
 computes S-polynomials of all pairs and reduces them against the current basis.
 If a reduction yields a nonzero remainder, it is added to the basis and the
@@ -213,10 +229,11 @@ Conceptually simple but impractical for large systems due to intermediate
 expression swell: the polynomials generated during computation can have very
 large coefficients and many terms, even if the final basis is compact.
 
-See
-[Wikipedia: Buchberger's algorithm](https://en.wikipedia.org/wiki/Buchberger%27s_algorithm).
-
 ### F4 (Faugere, 1999)
+
+(See Faugere.
+["A New Efficient Algorithm for Computing Groebner Bases (F4)"](<https://doi.org/10.1016/S0022-4049(99)00005-5>)
+(Journal of Pure and Applied Algebra, 1999).)
 
 F4 replaces the pairwise S-polynomial reductions of Buchberger with **sparse
 linear algebra on Macaulay matrices**. In each step:
@@ -395,6 +412,10 @@ for n_rounds in [2, 3, 4]:
 
 ### F5 (Faugere, 2002)
 
+(See Faugere.
+["A New Efficient Algorithm for Computing Groebner Bases without Reduction to Zero (F5)"](https://doi.org/10.1145/780506.780516)
+(ISSAC 2002).)
+
 F5 improves on F4 by detecting and **avoiding useless reductions** before they
 happen. It maintains "signatures" that track the history of each polynomial,
 allowing it to predict when an S-polynomial will reduce to zero (and thus skip
@@ -410,6 +431,10 @@ practice, F5 is harder to implement efficiently than F4, and many
 implementations use F4 with heuristic redundancy elimination instead.
 
 ### XL (eXtended Linearization)
+
+(See Courtois, Klimov, Patarin, Shamir.
+["Efficient Algorithms for Solving Overdefined Systems of Multivariate Polynomial Equations"](https://doi.org/10.1007/3-540-45539-6_27)
+(EUROCRYPT 2000).)
 
 XL (Courtois et al., 2000) takes a different approach. Instead of iteratively
 building a basis, it:
@@ -452,6 +477,14 @@ algebra exponent.
 
 ### Hilbert series
 
+(See
+[Wikipedia: Hilbert series and Hilbert polynomial](https://en.wikipedia.org/wiki/Hilbert_series_and_Hilbert_polynomial),
+Cox, Little, O'Shea.
+["Ideals, Varieties, and Algorithms"](https://doi.org/10.1007/978-3-319-16721-3)
+(Springer, 4th ed. 2015), Chapter 9, and Hilbert.
+["Ueber die Theorie der algebraischen Formen"](https://doi.org/10.1007/BF01208503)
+(Mathematische Annalen, 1890).)
+
 The **Hilbert series** (or Hilbert-Poincare series) of a polynomial ideal $I$
 encodes the dimensions of the graded components of the quotient ring $R/I$. For
 a polynomial ring $R = \mathbb{F}_p[x_1, \ldots, x_n]$ and a homogeneous ideal
@@ -485,12 +518,6 @@ equation $i$. The denominator $(1 - z)^n$ accounts for the $n$ free variables.
 $d$, the number of new basis elements found corresponds to the drop in the
 Hilbert function. When the Hilbert function reaches zero, the computation is
 complete. The degree at which this happens is the solving degree.
-
-See
-[Wikipedia: Hilbert series and Hilbert polynomial](https://en.wikipedia.org/wiki/Hilbert_series_and_Hilbert_polynomial)
-and Cox, Little, O'Shea.
-["Ideals, Varieties, and Algorithms"](https://doi.org/10.1007/978-3-319-16721-3),
-Chapter 9.
 
 <!-- prettier-ignore-start -->
 <SageCell code={`
@@ -537,6 +564,14 @@ for d, c in enumerate(HS_predicted.list()):
 
 ### Castelnuovo-Mumford regularity
 
+(See
+[Wikipedia: Castelnuovo-Mumford regularity](https://en.wikipedia.org/wiki/Castelnuovo%E2%80%93Mumford_regularity),
+Bayer, Stillman.
+["A criterion for detecting m-regularity"](https://doi.org/10.1007/BF01231893)
+(Inventiones mathematicae, 1987), and Eisenbud.
+["Commutative Algebra: with a View Toward Algebraic Geometry"](https://doi.org/10.1007/978-1-4612-5350-1)
+(Springer, 1995), Chapter 20.)
+
 The **Castelnuovo-Mumford regularity** (or simply "regularity") of a homogeneous
 ideal $I$ is an algebraic invariant that, for our purposes, equals the **maximum
 degree reached during an optimal Groebner basis computation**.
@@ -563,13 +598,13 @@ $$
 For example, 3 quadratic equations in 3 variables have regularity
 $1 + 3 \cdot (2 - 1) = 4$.
 
-See
-[Wikipedia: Castelnuovo-Mumford regularity](https://en.wikipedia.org/wiki/Castelnuovo%E2%80%93Mumford_regularity)
-and Bayer, Stillman.
-["A criterion for detecting m-regularity"](https://doi.org/10.1007/BF01231893)
-(Inventiones mathematicae, 1987).
-
 ### Regularity and semi-regularity
+
+(See Bardet, Faugere, Salvy.
+["On the complexity of Groebner basis computation of semi-regular overdetermined algebraic equations"](https://inria.hal.science/inria-00071534)
+(INRIA RR-5049, 2003) for the semi-regularity notion, and Faugere.
+["A New Efficient Algorithm for Computing Groebner Bases without Reduction to Zero (F5)"](https://doi.org/10.1145/780506.780516)
+(2002) for the connection to solving degree.)
 
 For a **regular** system (generic dense polynomials), the solving degree equals
 the Castelnuovo-Mumford regularity, which can be read from the Hilbert series of
