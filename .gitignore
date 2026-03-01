@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Docusaurus
+doc/.docusaurus/
+doc/build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.local
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
