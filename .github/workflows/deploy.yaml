@@ -30,7 +30,7 @@ jobs:
       - name: Build website
         run: npm --prefix doc run build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: doc/build
 
