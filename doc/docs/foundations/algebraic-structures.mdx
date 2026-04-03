@@ -2,10 +2,8 @@
 sidebar_position: 1
 ---
 
-import fieldArithmeticCode from '!!raw-loader!../../../sage/foundations/field_arithmetic.sage';
 import powerMapSboxCode from '!!raw-loader!../../../sage/foundations/power_map_sbox.sage';
 import mdsMatrixCode from '!!raw-loader!../../../sage/foundations/mds_matrix.sage';
-import starkFieldsCode from '!!raw-loader!../../../sage/foundations/stark_fields.sage';
 
 # Algebraic Structures
 
@@ -61,14 +59,6 @@ the security level while keeping base-field arithmetic cheap:
 The prover performs most work over the base field (cheap, SIMD-friendly), and
 only uses the extension field for the verifier's random challenges where
 128-bit security is needed.
-
-<!-- prettier-ignore-start -->
-<SageCell code={fieldArithmeticCode} />
-<!-- prettier-ignore-end -->
-
-<!-- prettier-ignore-start -->
-<SageCell code={starkFieldsCode} />
-<!-- prettier-ignore-end -->
 
 ## S-boxes
 
