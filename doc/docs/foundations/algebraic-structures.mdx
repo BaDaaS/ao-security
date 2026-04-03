@@ -1,0 +1,139 @@
+---
+sidebar_position: 1
+---
+
+import fieldArithmeticCode from '!!raw-loader!../../../sage/foundations/field_arithmetic.sage';
+import powerMapSboxCode from '!!raw-loader!../../../sage/foundations/power_map_sbox.sage';
+import mdsMatrixCode from '!!raw-loader!../../../sage/foundations/mds_matrix.sage';
+import starkFieldsCode from '!!raw-loader!../../../sage/foundations/stark_fields.sage';
+
+# Algebraic Structures
+
+## Finite fields
+
+An AO hash function operates over a prime field
+$\mathbb{F}_p = \mathbb{Z}/p\mathbb{Z}$. All arithmetic (addition,
+multiplication, inversion) is modulo a large prime $p$, typically the scalar
+field of an elliptic curve used in a proof system.
+
+Common choices:
+
+### Elliptic curve scalar fields
+
+These fields arise as the scalar fields of pairing-friendly elliptic curves
+used in SNARK proof systems (Groth16, PLONK with KZG):
+
+| Field            | Prime $p$                                                                    | Bits | 2-adicity |
+| ---------------- | ---------------------------------------------------------------------------- | ---- | --------- |
+| BN254 scalar     | $21888242871839275222246405745257275088548364400416034343698204186575808495617$ | 254  | 28        |
+| BLS12-381 scalar | $52435875175126190479447740508185965837690552500527637822603658699938581184513$ | 255  | 32        |
+
+### STARK-friendly fields
+
+Modern STARK provers (in particular
+[Plonky3](https://github.com/Plonky3/Plonky3/)) use small primes with fast
+modular reduction and high 2-adicity, enabling efficient NTT-based polynomial
+arithmetic and SIMD vectorisation:
+
+| Field       | Prime $p$                | Form                    | Bits | 2-adicity | Notes                                                       |
+| ----------- | ------------------------ | ----------------------- | ---- | --------- | ----------------------------------------------------------- |
+| Mersenne-31 | $2^{31} - 1$            | Mersenne                | 31   | 1         | Reduction is a single addition; no NTT (2-adicity too low)  |
+| BabyBear    | $2^{31} - 2^{27} + 1$   | Pseudo-Mersenne         | 31   | 27        | Highest 2-adicity among 31-bit primes                       |
+| KoalaBear   | $2^{31} - 2^{24} + 1$   | Pseudo-Mersenne         | 31   | 24        | Cube map $x \mapsto x^3$ is an automorphism                 |
+| Goldilocks  | $2^{64} - 2^{32} + 1$   | Pseudo-Mersenne         | 64   | 32        | Fits in a single 64-bit word; fast reduction                |
+
+The **2-adicity** of a prime $p$ is the largest $k$ such that $2^k \mid p - 1$.
+It determines the maximum NTT size: the field supports NTTs of length up to
+$2^k$. This is critical for FRI-based proof systems where the prover evaluates
+polynomials over multiplicative subgroups of order $2^k$.
+
+Plonky3 also defines **extension fields** over these base fields to increase
+the security level while keeping base-field arithmetic cheap:
+
+| Base field  | Extension degree | Irreducible polynomial | Extension order                  |
+| ----------- | ---------------- | ---------------------- | -------------------------------- |
+| BabyBear    | 4                | $x^4 - 11$            | $p^4 \approx 2^{124}$           |
+| BabyBear    | 5                | $x^5 - 2$             | $p^5 \approx 2^{155}$           |
+| KoalaBear   | 4                | $x^4 - 3$             | $p^4 \approx 2^{124}$           |
+| Goldilocks  | 2                | $x^2 - 7$             | $p^2 \approx 2^{128}$           |
+| Mersenne-31 | 3                | $x^3 - 5$             | $p^3 \approx 2^{93}$            |
+
+The prover performs most work over the base field (cheap, SIMD-friendly), and
+only uses the extension field for the verifier's random challenges where
+128-bit security is needed.
+
+<!-- prettier-ignore-start -->
+<SageCell code={fieldArithmeticCode} />
+<!-- prettier-ignore-end -->
+
+<!-- prettier-ignore-start -->
+<SageCell code={starkFieldsCode} />
+<!-- prettier-ignore-end -->
+
+## S-boxes
+
+The **S-box** (substitution box) is the nonlinear component of an AO hash
+function. Unlike AES which uses lookup tables, AO S-boxes are defined by
+algebraic expressions over $\mathbb{F}_p$.
+
+### Power map S-box
+
+The most common choice: $S(x) = x^{\alpha}$ where $\alpha$ is chosen so that
+$\gcd(\alpha, p - 1) = 1$ (ensuring the map is a permutation).
+
+Common values of $\alpha$:
+
+| $\alpha$              | Used by                      |
+| --------------------- | ---------------------------- |
+| 3                     | Poseidon (some instances)    |
+| 5                     | Poseidon, Poseidon2, Neptune |
+| 7                     | Poseidon (some instances)    |
+| $-1$ (i.e. $x^{p-2}$) | Rescue (inverse map)         |
+
+The **algebraic degree** of $x^{\alpha}$ is $\alpha$, and the algebraic degree
+of its inverse $x^{1/\alpha}$ is $1/\alpha \mod (p-1)$, which is typically very
+large. This asymmetry is exploited by Rescue.
+
+<!-- prettier-ignore-start -->
+<SageCell code={powerMapSboxCode} />
+<!-- prettier-ignore-end -->
+
+### Flystel S-box (Anemoi)
+
+Anemoi uses the **open Flystel** construction, a 2-to-2 map built from the power
+map. See the [Anemoi page](../primitives/anemoi) for details.
+
+## MDS matrices
+
+A **Maximum Distance Separable (MDS)** matrix $M$ over $\mathbb{F}_p$ is used as
+the linear layer. An $t \times t$ MDS matrix has the property that every square
+submatrix is invertible. This ensures **full diffusion**: every output element
+depends on every input element after one application of $M$.
+
+MDS matrices are typically constructed as:
+
+- **Cauchy matrices**: $M_{i,j} = 1/(x_i - y_j)$ for distinct elements
+  $x_i, y_j \in \mathbb{F}_p$
+- **Circulant matrices**: defined by a single row, used in Poseidon2
+- **Vandermonde-based**: used in some Rescue variants
+
+<!-- prettier-ignore-start -->
+<SageCell code={mdsMatrixCode} />
+<!-- prettier-ignore-end -->
+
+## Sponge construction
+
+Most AO hash functions use the **sponge construction** to build a
+variable-input-length hash from a fixed-width permutation $\pi$.
+
+The state is split into:
+
+- **Rate** $r$: absorbs input and squeezes output
+- **Capacity** $c$: provides security; never directly exposed
+
+The security level is $\min(2^{c/2}, 2^r)$ for collision resistance and
+$\min(2^c, 2^r)$ for preimage resistance.
+
+For AO hash functions, the state width is measured in **field elements**, not
+bits. A state of $t$ elements over $\mathbb{F}_p$ has
+$t \cdot \lceil \log_2 p \rceil$ bits.

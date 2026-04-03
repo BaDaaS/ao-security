@@ -1,0 +1,191 @@
+---
+sidebar_position: 3
+---
+
+import plonkishGatesCode from '!!raw-loader!../../../sage/arithmetization/plonkish_gates.sage';
+
+# PlonK-ish Arithmetization
+
+## Overview
+
+PlonK-ish is a family of constraint systems introduced by PLONK and extended by
+systems such as Halo 2, HyperPlonk, and others. It generalises R1CS by
+supporting **custom gates** (polynomial constraints of arbitrary degree) and
+**copy constraints** (enforcing equality between cells in different rows).
+
+The addition of **lookup arguments** (Plookup, LogUp) further extends PlonK-ish
+systems to support table-based operations efficiently, which is critical for
+primitives like Reinforced Concrete and Tip5.
+
+## Structure
+
+A PlonK-ish circuit is defined as a table with:
+
+- **Columns**: either **advice** (private witness), **instance** (public
+  input), or **fixed** (constants baked into the circuit)
+- **Rows**: each row represents one gate evaluation
+- **Custom gates**: polynomial constraints over cells in the current row (and
+  optionally adjacent rows via rotation)
+- **Copy constraints**: permutation argument enforcing that two cells hold the
+  same value
+- **Lookup arguments**: prove that a value (or tuple) appears in a predefined
+  table
+
+### Gate definition
+
+A custom gate is a polynomial $g$ of degree $d$ over the cells of a row. The
+constraint $g = 0$ must hold for every active row. Multiple gate types can
+coexist in the same circuit, activated by **selector columns** (fixed columns
+that are 1 on rows where the gate applies, 0 elsewhere).
+
+Example: a degree-5 custom gate for the $x^5$ S-box:
+
+$$
+s_{\text{sbox}}(r) \cdot (w_0(r)^5 - w_1(r)) = 0
+$$
+
+where $s_{\text{sbox}}$ is the selector, $w_0$ is the input wire, and $w_1$ is
+the output wire.
+
+## Cost model
+
+The proof size and prover time depend on:
+
+1. **Number of rows**: the dominant cost factor
+2. **Number of columns**: adds polynomial commitments
+3. **Gate degree**: higher-degree gates can pack more computation per row but
+   increase the quotient polynomial degree
+4. **Number of lookups**: each lookup argument adds overhead
+
+### What costs what
+
+- **Multiplication**: free if absorbed into a custom gate
+- **$x^5$ S-box**: one row with a degree-5 gate (single constraint)
+- **$x^7$ S-box**: one row with a degree-7 gate, or two rows with lower-degree
+  gates
+- **Linear operations**: free within a gate (additions, scalar multiplications)
+- **Lookup**: one row per lookup, plus amortized cost of the lookup argument
+
+### Custom gates vs. R1CS
+
+In R1CS, $x^5$ costs 3 constraints (3 multiplication gates). In PlonK-ish with
+a degree-5 custom gate, it costs **1 row**. This is the core advantage:
+PlonK-ish systems pack more computation per constraint.
+
+However, increasing the gate degree increases the quotient polynomial degree,
+which means more work for the prover. In practice, degree 4-8 gates are common.
+
+### Degree and column trade-offs
+
+The cost of a PlonK-ish circuit depends heavily on two parameters that the
+circuit designer can tune:
+
+1. **Number of columns** (advice wires): more columns allow more intermediate
+   values per row, reducing the total number of rows at the cost of additional
+   polynomial commitments.
+2. **Maximum gate degree**: the maximum degree $d$ accepted in the multivariate
+   polynomial constraints.
+
+These two knobs interact. A higher allowed degree means more computation can be
+packed into a single gate, which reduces the number of rows (and therefore
+rounds of the hash function that must be unrolled). In particular, the S-box
+exponent $\alpha$ does not have to be the smallest integer coprime to $p - 1$.
+One can choose a **higher exponent** than the minimal $\alpha$ if the PlonK-ish
+backend supports the corresponding gate degree, and this higher exponent yields
+faster algebraic degree growth, which in turn allows **fewer rounds** for the
+same security margin.
+
+For example, if the backend supports degree-7 gates, a designer could use
+$\alpha = 7$ instead of $\alpha = 5$ (even when 5 is the smallest valid
+exponent for the field). The faster degree growth from $\alpha = 7$ means the
+permutation reaches full algebraic degree in fewer rounds, potentially reducing
+the total row count despite the higher per-gate degree.
+
+The optimal choice balances:
+
+- **Gate degree** vs. **quotient polynomial blowup** (higher degree = more
+  prover work per row)
+- **Number of columns** vs. **commitment cost** (more columns = more KZG/IPA
+  openings)
+- **S-box exponent** vs. **number of rounds** (higher exponent = fewer rounds
+  but heavier gates)
+
+<!-- prettier-ignore-start -->
+<SageCell code={plonkishGatesCode} />
+<!-- prettier-ignore-end -->
+
+## Hash function efficiency
+
+### Poseidon/Poseidon2 in PlonK-ish
+
+A full round of Poseidon with $t$ state elements can be encoded as:
+
+- $t$ rows for S-boxes (one degree-$\alpha$ gate each), or
+- Fewer rows with wider gates that combine S-box + MDS in one step
+
+Poseidon2's simpler internal linear layer (diagonal matrix + constant) makes
+the combined gate more compact.
+
+Partial rounds offer smaller savings in PlonK-ish than in R1CS because the
+overhead per S-box is already low (one row vs. multiple R1CS constraints).
+
+### Rescue in PlonK-ish
+
+Both $x^{\alpha}$ and $x^{1/\alpha}$ can be handled in PlonK-ish by:
+
+- Forward S-box: degree-$\alpha$ gate, $w_1 = w_0^{\alpha}$
+- Inverse S-box: same gate, $w_0 = w_1^{\alpha}$ (swap input/output roles)
+
+Like AIR, the inverse direction is free. Combined with fewer rounds, Rescue can
+be competitive in PlonK-ish despite its higher per-round S-box count.
+
+### Lookup-based primitives
+
+Reinforced Concrete and Tip5 use S-boxes defined via lookup tables. In
+PlonK-ish systems with lookup arguments, each table-based S-box evaluation
+costs:
+
+- **1 lookup** per element (prove the (input, output) pair is in the table)
+- **0 multiplication constraints** for the S-box itself
+
+This makes lookup-based primitives significantly cheaper in PlonK-ish than in
+R1CS or AIR, where the table must be expressed as polynomial constraints.
+
+| Primitive           | Without lookups (R1CS) | With lookups (PlonK-ish) |
+| ------------------- | ---------------------- | ----------------------- |
+| Reinforced Concrete | ~600 constraints       | ~200 rows               |
+| Tip5                | ~500 constraints       | ~150 rows               |
+
+## Lookup arguments
+
+The most common lookup argument protocols:
+
+- **Plookup** (Gabizon, Williamson, 2020): original lookup argument for PLONK
+- **LogUp** (Haboeck, 2022): logarithmic derivative-based, more efficient for
+  large tables
+- **cq/Lasso** (Setty, 2023): committed lookup, avoids per-table commitment
+
+Lookup arguments add a per-lookup cost plus a fixed overhead proportional to
+the table size. For hash function S-box tables (typically $2^8$ to $2^{16}$
+entries), this overhead is small.
+
+## Proof systems using PlonK-ish
+
+- **PLONK** (Gabizon, Williamson, Ciobotaru, 2019): universal trusted setup
+  (KZG)
+- **Halo 2** (Zcash): no trusted setup (IPA commitments), supports lookups
+- **HyperPlonk** (Chen et al., 2022): multilinear polynomial commitments
+- **Kimchi** (Mina Protocol): PLONK variant with custom gates and lookups
+
+## References
+
+- Gabizon, Williamson, Ciobotaru. "PLONK: Permutations over Lagrange-bases
+  for Oecumenical Noninteractive arguments of Knowledge" (2019)
+  [ePrint 2019/953](https://eprint.iacr.org/2019/953)
+- Gabizon, Williamson. "plookup: A simplified polynomial protocol for lookup
+  tables" (2020)
+  [ePrint 2020/315](https://eprint.iacr.org/2020/315)
+- Haboeck. "Multivariate lookups based on logarithmic derivatives" (2022)
+  [ePrint 2022/1530](https://eprint.iacr.org/2022/1530)
+- Pearson, Fitzgerald, Masny, Peeters, Rossi. "Halo 2 Documentation"
+  [https://zcash.github.io/halo2/](https://zcash.github.io/halo2/)

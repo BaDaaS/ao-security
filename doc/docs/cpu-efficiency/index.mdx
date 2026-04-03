@@ -1,0 +1,126 @@
+---
+sidebar_position: 0
+---
+
+import sboxMulCountsCode from '!!raw-loader!../../../sage/cpu_efficiency/sbox_mul_counts.sage';
+import fieldSizeImpactCode from '!!raw-loader!../../../sage/cpu_efficiency/field_size_impact.sage';
+import inverseSboxCostCode from '!!raw-loader!../../../sage/cpu_efficiency/inverse_sbox_cost.sage';
+
+# CPU Efficiency
+
+While AO hash functions are designed for efficient evaluation inside arithmetic
+circuits, their **native CPU performance** also matters. In practice, a hash
+function is evaluated both inside a proof system (the prover must compute the
+witness) and outside it (e.g., for Merkle tree construction, commitment
+schemes, or standalone hashing). This section analyses the CPU cost of each
+primitive.
+
+## Why CPU efficiency matters for AO primitives
+
+The total cost of using an AO hash function in a proof system includes:
+
+1. **Circuit cost**: number of constraints/rows (covered in
+   [Arithmetization](/arithmetization))
+2. **Prover native cost**: the prover must evaluate the hash function to
+   compute the witness before encoding it as constraints
+3. **Standalone cost**: applications that use the hash function outside proofs
+   (e.g., building Merkle trees for data availability)
+
+A function that is extremely circuit-efficient but slow on CPUs creates a
+bottleneck at step 2 and 3. The ideal AO hash function is fast in both
+settings.
+
+## Cost breakdown per operation
+
+The primitive operations in AO hash functions and their approximate CPU costs:
+
+| Operation                     | CPU cost                              | Notes                                   |
+| ----------------------------- | ------------------------------------- | --------------------------------------- |
+| Field addition                | ~1 ns (64-bit limb)                   | Cheap on all architectures              |
+| Field multiplication          | ~5-20 ns                              | Depends on field size and Montgomery    |
+| Field squaring                | ~4-15 ns                              | Slightly cheaper than general multiply  |
+| Field inversion               | ~200-500 ns                           | Expensive; uses extended Euclidean      |
+| $x^5$ (square-and-multiply)   | ~15-50 ns                             | 2 squarings + 1 multiply               |
+| $x^{1/5}$ (Tonelli-Shanks)   | ~300-1000 ns                          | Much more expensive than forward        |
+| MDS matrix-vector product     | $O(t^2)$ multiplications              | Optimised to $O(t \log t)$ in some cases|
+| Lookup table (8-bit)          | ~1 ns                                 | Cache-friendly on CPU                   |
+
+<!-- prettier-ignore-start -->
+<SageCell code={sboxMulCountsCode} />
+<!-- prettier-ignore-end -->
+
+## Comparison across primitives
+
+The table below estimates the total number of field multiplications for one
+permutation call. This is the dominant factor in CPU performance.
+
+| Primitive              | Muls per round       | Rounds | Total muls (approx) | Notes                                  |
+| ---------------------- | -------------------- | ------ | -------------------- | -------------------------------------- |
+| Poseidon ($t=3$)       | ~12 (full), ~6 (partial) | 8F+57P | ~400              | Partial rounds reduce mul count        |
+| Poseidon2 ($t=3$)      | ~8 (ext), ~4 (int)   | 4E+56I | ~260                | Cheaper linear layer                   |
+| Rescue-Prime ($t=3$)   | ~6 + inv             | 14     | ~700+               | Inverse S-box is CPU-expensive         |
+| Anemoi ($t=2$)         | ~10                  | 14     | ~140                | Flystel avoids full inversions         |
+| Griffin ($t=3$)        | ~8 + 1 inv           | 12     | ~500+               | One inverse per round                  |
+| Reinforced Concrete    | ~20 (table lookups)  | 8      | ~160                | Lookup-based S-box is fast on CPU      |
+| Tip5                   | ~15 (table + power)  | 5      | ~75                 | Fewest rounds; fast on CPU             |
+
+## Field choice impact
+
+The CPU cost of field arithmetic varies significantly with the field:
+
+<!-- prettier-ignore-start -->
+<SageCell code={fieldSizeImpactCode} />
+<!-- prettier-ignore-end -->
+
+## Inverse S-box: the CPU bottleneck
+
+The inverse power map $x \mapsto x^{1/\alpha}$ deserves special attention.
+While it is essentially free in AIR and PlonK-ish arithmetizations (the
+verifier checks $y^{\alpha} = x$), on CPU the prover must actually compute
+$y = x^{1/\alpha}$.
+
+There are two approaches:
+
+1. **Exponentiation**: compute $x^{\alpha^{-1} \bmod (p-1)}$. The inverse
+   exponent is typically close to $p$ in magnitude, requiring ~$\log_2(p)$
+   squarings and multiplications.
+2. **Tonelli-Shanks variant**: for specific $\alpha$ values and field shapes,
+   specialised algorithms exist (e.g., cube roots via the Cipolla-Lehmer
+   method).
+
+<!-- prettier-ignore-start -->
+<SageCell code={inverseSboxCostCode} />
+<!-- prettier-ignore-end -->
+
+For Rescue-Prime (which uses $x^{1/\alpha}$ every other round), this means the
+CPU cost per round is dominated by the inverse S-box computation. This is the
+primary reason why Rescue is less popular for applications where native
+performance matters, even though its circuit efficiency in AIR is excellent.
+
+## Parallelism and vectorisation
+
+Modern CPUs can exploit parallelism at multiple levels:
+
+- **SIMD**: field operations on BabyBear or Goldilocks can be vectorised using
+  AVX2/AVX-512 (4-8 elements per instruction)
+- **S-box parallelism**: full rounds apply the S-box to all state elements
+  independently, enabling parallel evaluation
+- **Multi-hash**: when computing many hashes (e.g., Merkle tree layers),
+  multiple permutation calls can run in parallel
+
+Primitives with wider states (larger $t$) expose more S-box parallelism per
+permutation call. However, they also require larger MDS matrices, which can
+offset the gains.
+
+## References
+
+- Grassi, Khovratovich, Rechberger, Roy, Schofnegger. "Poseidon: A New Hash
+  Function for Zero-Knowledge Proof Systems" (USENIX Security 2021)
+  [ePrint 2019/458](https://eprint.iacr.org/2019/458) - includes CPU
+  benchmarks
+- Grassi, Hao, Rechberger, Tribastone, Yun. "Poseidon2: A Faster Version of
+  the Poseidon Hash Function" (2023)
+  [ePrint 2023/323](https://eprint.iacr.org/2023/323) - CPU performance
+  comparison
+- Polygon Zero Team. "Plonky2: Fast Recursive Arguments with PLONK and FRI"
+  (2022) - benchmarks over Goldilocks field

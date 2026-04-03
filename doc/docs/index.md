@@ -36,7 +36,26 @@ classical differential/linear methods used for AES or SHA.
 | [Reinforced Concrete](primitives/reinforced-concrete) | Bars + Bricks + Concrete      | SPN (lookup-friendly)            | 2022 |
 | [Tip5](primitives/tip5)                               | Lookup + $x^{\alpha}$         | SPN (Tip4Prime successor)        | 2023 |
 
-## Attack techniques
+## Analysis dimensions
+
+Each primitive is studied along three axes:
+
+### Arithmetization efficiency
+
+The [arithmetization section](arithmetization/) covers the constraint cost of
+evaluating each primitive inside the three main proof system families:
+
+- [R1CS](arithmetization/r1cs) (Groth16, Spartan, Marlin)
+- [AIR](arithmetization/air) (STARKs)
+- [PlonK-ish](arithmetization/plonkish) (PLONK, Halo 2, HyperPlonk)
+
+### CPU efficiency
+
+The [CPU efficiency section](cpu-efficiency/) analyses the native performance
+of each primitive outside of circuits: field arithmetic costs, the expense of
+inverse S-boxes, and the impact of field choice on throughput.
+
+### Cryptanalysis
 
 The [attacks section](attacks/) covers the cryptanalytic techniques used to
 evaluate these primitives:

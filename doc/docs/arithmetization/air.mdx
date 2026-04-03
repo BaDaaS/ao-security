@@ -1,0 +1,148 @@
+---
+sidebar_position: 2
+---
+
+import airTraceCode from '!!raw-loader!../../../sage/arithmetization/air_trace.sage';
+import airInverseSboxCode from '!!raw-loader!../../../sage/arithmetization/air_inverse_sbox.sage';
+
+# AIR (Algebraic Intermediate Representation)
+
+## Overview
+
+AIR is the constraint language used by STARKs. Instead of encoding a
+computation as individual gates (like R1CS), AIR represents it as a table of
+values (the **execution trace**) together with **transition constraints** that
+relate consecutive rows.
+
+## Structure
+
+An AIR instance consists of:
+
+- An execution trace: a matrix $T \in \mathbb{F}_p^{n \times w}$ with $n$ rows
+  (steps) and $w$ columns (registers)
+- Transition constraints: multivariate polynomials $p_j$ such that for every
+  row $i$:
+
+$$
+p_j(T[i, 0], \ldots, T[i, w-1], T[i+1, 0], \ldots, T[i+1, w-1]) = 0
+$$
+
+- Boundary constraints: fix specific cells to known values (input/output)
+
+### Cost model
+
+The cost of an AIR proof depends on:
+
+1. **Trace width** $w$: number of columns (registers)
+2. **Trace length** $n$: number of rows (steps), must be a power of 2
+3. **Constraint degree** $d$: maximum degree of transition polynomials
+4. **Blowup factor**: typically $2d$ or more, determined by constraint degree
+
+The proof size and verifier time scale with $w \cdot n \cdot \log(n)$. Lower
+degree constraints allow a smaller blowup factor, reducing proof size.
+
+## What costs what in AIR
+
+- **Multiplication**: does not cost an extra constraint if it fits within
+  the allowed constraint degree
+- **High-degree operations**: $x^{\alpha}$ for small $\alpha$ can be a single
+  transition constraint of degree $\alpha$ (if $\alpha \leq d$)
+- **Addition and scalar multiplication**: absorbed into polynomials, free
+- **Intermediate variables**: can be added as extra trace columns to reduce
+  constraint degree
+
+### Example: $x^5$ in AIR
+
+If the maximum allowed constraint degree is $d \geq 5$, then $x^5$ is verified
+with a single transition constraint:
+
+$$
+T[i+1, 0] = T[i, 0]^5
+$$
+
+No extra columns needed. If $d < 5$, auxiliary columns split the computation:
+
+| Column 0 | Column 1     | Constraint                           |
+| --------- | ------------ | ------------------------------------ |
+| $x$       | $x^2$        | $\text{col}_1 = \text{col}_0^2$      |
+| ...       | ...          | $T[i+1, 0] = \text{col}_1^2 \cdot \text{col}_0$ |
+
+<!-- prettier-ignore-start -->
+<SageCell code={airTraceCode} />
+<!-- prettier-ignore-end -->
+
+## Advantage for inverse S-boxes
+
+The key advantage of AIR for hash functions like Rescue and Griffin is the
+handling of the inverse S-box $x \mapsto x^{1/\alpha}$.
+
+In R1CS, the prover supplies $y = x^{1/\alpha}$ as a witness and proves
+$y^{\alpha} = x$, which costs the same as a forward S-box.
+
+In AIR, the transition constraint is identical:
+
+$$
+T[i+1, j]^{\alpha} = T[i, j]
+$$
+
+This is a degree-$\alpha$ constraint regardless of which direction is
+"forward." The inverse S-box costs **exactly the same** as the forward S-box:
+one transition constraint per element.
+
+This means Rescue's alternating $x^{\alpha}$ / $x^{1/\alpha}$ structure
+provides **twice the nonlinearity per constraint** in AIR compared to applying
+$x^{\alpha}$ twice. This is why Rescue was designed with STARKs in mind.
+
+<!-- prettier-ignore-start -->
+<SageCell code={airInverseSboxCode} />
+<!-- prettier-ignore-end -->
+
+## Cost analysis for AO primitives
+
+### Poseidon in AIR
+
+Each round occupies one trace row with $t$ columns. Transition constraints:
+
+- Full round: $t$ constraints of degree $\alpha$ (one per S-box)
+- Partial round: 1 constraint of degree $\alpha$ + $(t-1)$ linear constraints
+
+The partial round savings in AIR are **less significant** than in R1CS because
+degree-$\alpha$ constraints are not much more expensive than linear ones in
+the STARK framework.
+
+### Rescue-Prime in AIR
+
+Each round applies $x^{\alpha}$ then $x^{1/\alpha}$ (or vice versa). Both
+directions use degree-$\alpha$ constraints:
+
+- Each full round: $t$ constraints per half-round, $2t$ total
+- Total constraints per round: $2t$ of degree $\alpha$
+
+Despite having twice as many S-box applications as Poseidon per round, Rescue
+needs **fewer rounds** (e.g., 14 vs 65 for comparable parameters), so the
+total trace length can be shorter.
+
+### Anemoi in AIR
+
+The Flystel structure has components that decompose into low-degree transition
+constraints. The quadratic subfunction $\mathcal{E}(x) = x^2 + \beta x$ is
+degree 2, and the Flystel combines it with a power map, keeping the overall
+constraint degree at $\alpha$.
+
+## Proof systems using AIR
+
+- **STARKs** (Winterfell, Stone, Stwo): transparent setup, post-quantum
+  (hash-based), large proof size
+- **eSTARK** (Polygon): batched AIR with lookup arguments
+- **DEEP-FRI**: used for low-degree testing in STARK provers
+
+## References
+
+- Ben-Sasson, Bentov, Horesh, Riabzev. "Scalable, transparent, and
+  post-quantum secure computational integrity" (2018)
+  [ePrint 2018/046](https://eprint.iacr.org/2018/046)
+- Aly, Ashur, Ben-Sasson, Dhooghe, Szepieniec. "Efficient Symmetric
+  Primitives for Advanced Cryptographic Protocols (Rescue)" (2020)
+  [ePrint 2020/1143](https://eprint.iacr.org/2020/1143)
+- StarkWare. "ethSTARK Documentation" (2021)
+  [ePrint 2021/582](https://eprint.iacr.org/2021/582)

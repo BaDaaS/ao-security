@@ -1,0 +1,120 @@
+---
+sidebar_position: 1
+---
+
+import r1csConstraintCountCode from '!!raw-loader!../../../sage/arithmetization/r1cs_constraint_count.sage';
+import r1csInverseSboxCode from '!!raw-loader!../../../sage/arithmetization/r1cs_inverse_sbox.sage';
+
+# R1CS (Rank-1 Constraint System)
+
+## Overview
+
+R1CS is the constraint language used by SNARKs such as Groth16, Spartan, and
+Marlin. Every computation is encoded as a set of constraints of the form:
+
+$$
+\langle a_i, w \rangle \cdot \langle b_i, w \rangle = \langle c_i, w \rangle
+$$
+
+where $w$ is the witness vector (all intermediate values plus public inputs)
+and $a_i, b_i, c_i$ are coefficient vectors. Each constraint captures exactly
+one multiplication gate.
+
+## Structure
+
+An R1CS instance consists of three matrices $A, B, C \in \mathbb{F}_p^{m
+\times n}$ where $m$ is the number of constraints and $n$ is the number of
+variables. The prover must find a witness $w \in \mathbb{F}_p^n$ such that:
+
+$$
+(A \cdot w) \circ (B \cdot w) = C \cdot w
+$$
+
+where $\circ$ denotes the Hadamard (element-wise) product.
+
+### What costs a constraint
+
+- **Multiplication**: each field multiplication costs one R1CS constraint
+- **Addition**: free (absorbed into the linear combinations $a_i, b_i, c_i$)
+- **Constant multiplication**: free (scalar factor in the linear combination)
+- **Exponentiation** $x^{\alpha}$: costs $\lceil \log_2(\alpha) \rceil - 1 +
+  \text{popcount}(\alpha) - 1$ constraints via square-and-multiply
+
+### Example: $x^5$ in R1CS
+
+Computing $x^5$ requires 3 multiplication constraints:
+
+| Step            | Constraint       | New variable |
+| --------------- | ---------------- | ------------ |
+| $v_1 = x^2$    | $x \cdot x = v_1$     | $v_1$  |
+| $v_2 = v_1^2$  | $v_1 \cdot v_1 = v_2$ | $v_2$  |
+| $v_3 = v_2 \cdot x$ | $v_2 \cdot x = v_3$ | $v_3 = x^5$ |
+
+<!-- prettier-ignore-start -->
+<SageCell code={r1csConstraintCountCode} />
+<!-- prettier-ignore-end -->
+
+## Cost model for AO hash functions
+
+In R1CS, the dominant cost comes from the S-box layer because each S-box
+evaluation requires multiple multiplications.
+
+### S-box costs
+
+| S-box type            | Expression                | R1CS constraints |
+| --------------------- | ------------------------- | ---------------- |
+| $x^3$ (cube)          | $x \cdot x = t; t \cdot x = y$ | 2          |
+| $x^5$                 | See example above         | 3                |
+| $x^7$                 | $x^2, x^4, x^3 = x^2 \cdot x, x^7 = x^4 \cdot x^3$ | 4 |
+| $x^{1/\alpha}$        | Must compute explicitly   | Same as $x^{\alpha}$ via witness inversion |
+| Flystel (Anemoi)      | Quadratic subfunction     | ~4               |
+
+### Impact of partial rounds
+
+Poseidon's partial rounds apply the S-box to only one state element instead of
+all $t$ elements. In R1CS this saves $(t-1) \cdot c_{\text{sbox}}$ constraints
+per partial round, where $c_{\text{sbox}}$ is the constraint cost of one S-box
+evaluation.
+
+For Poseidon with $t = 3$ and $\alpha = 5$:
+
+- Full round: $3 \times 3 = 9$ constraints (S-box) + 0 (MDS, linear)
+- Partial round: $1 \times 3 = 3$ constraints (S-box)
+- Total: $R_F \times 9 + R_P \times 3 = 8 \times 9 + 57 \times 3 = 243$
+  constraints for S-boxes alone
+
+### Inverse S-box cost
+
+Rescue uses both $x^{\alpha}$ and $x^{1/\alpha}$ in alternating rounds. In
+R1CS, computing $x^{1/\alpha}$ is done by having the prover supply $y$ as a
+witness and adding the constraint $y^{\alpha} = x$. This costs the same as
+$x^{\alpha}$, so Rescue's alternating structure provides **no R1CS savings**
+compared to using $x^{\alpha}$ in every round.
+
+<!-- prettier-ignore-start -->
+<SageCell code={r1csInverseSboxCode} />
+<!-- prettier-ignore-end -->
+
+## MDS layer
+
+The MDS matrix multiplication is a linear operation. In R1CS, linear operations
+are free because they are absorbed into the linear combinations of the next
+constraint. The MDS layer adds **zero** additional constraints.
+
+## Proof systems using R1CS
+
+- **Groth16**: constant-size proofs (3 group elements), trusted setup per
+  circuit
+- **Spartan**: transparent setup, uses sum-check protocol
+- **Marlin**: universal trusted setup (updateable)
+
+## References
+
+- Gennaro, Gentry, Parno, Raykova. "Quadratic Span Programs and Succinct
+  NIZKs without PCPs" (EUROCRYPT 2013)
+  [ePrint 2012/215](https://eprint.iacr.org/2012/215)
+- Groth. "On the Size of Pairing-based Non-interactive Arguments" (EUROCRYPT
+  2016) [ePrint 2016/260](https://eprint.iacr.org/2016/260)
+- Setty. "Spartan: Efficient and general-purpose zkSNARKs without trusted
+  setup" (CRYPTO 2020)
+  [ePrint 2019/550](https://eprint.iacr.org/2019/550)

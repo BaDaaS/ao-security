@@ -36,3 +36,11 @@ format: ## Format markdown files
 .PHONY: typecheck
 typecheck: ## Run TypeScript type checker
 	(cd doc && npx tsc --noEmit)
+
+.PHONY: test-sage
+test-sage: ## Run all SageMath files
+	.github/scripts/run-sage-tests.sh sage
+
+.PHONY: lint-shell
+lint-shell: ## Lint shell scripts using shellcheck
+	shellcheck .github/scripts/*.sh

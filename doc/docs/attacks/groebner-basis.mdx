@@ -2,6 +2,14 @@
 sidebar_position: 2
 ---
 
+import groebnerToySystemCode from '!!raw-loader!../../../sage/attacks/groebner_toy_system.sage';
+import groebnerDegreeFallsCode from '!!raw-loader!../../../sage/attacks/groebner_degree_falls.sage';
+import groebnerSemiRegularityCode from '!!raw-loader!../../../sage/attacks/groebner_semi_regularity.sage';
+import groebnerPoseidonSystemCode from '!!raw-loader!../../../sage/attacks/groebner_poseidon_system.sage';
+import groebnerReducedPoseidonCode from '!!raw-loader!../../../sage/attacks/groebner_reduced_poseidon.sage';
+import groebnerSolvingDegreeCode from '!!raw-loader!../../../sage/attacks/groebner_solving_degree.sage';
+import groebnerPracticalComplexityCode from '!!raw-loader!../../../sage/attacks/groebner_practical_complexity.sage';
+
 # Groebner Basis Attacks
 
 ## Overview
@@ -90,61 +98,7 @@ $D$ for fixed $n$. This is why the solving degree $D_{\text{sol}}$ dominates the
 cost.
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-# Build and visualize a Macaulay matrix
-p = 101
-F = GF(p)
-R.<x, y> = PolynomialRing(F, order='degrevlex')
-
-# Two quadratic polynomials
-f1 = x^2 + 3*x*y + 2*y^2 - 1
-f2 = 2*x^2 + x*y + y^2 - 3
-
-print(f"f1 = {f1}")
-print(f"f2 = {f2}")
-
-# Build Macaulay matrix at degree D=2 (no extension needed)
-# At degree 2, we just use f1 and f2 directly
-D = 2
-# All monomials up to degree D
-mons = [x^2, x*y, y^2, x, y, R(1)]
-print(f"\nDegree-{D} Macaulay matrix")
-print(f"Monomials: {mons}")
-
-rows_polys = [f1, f2]
-M2 = matrix(F, len(rows_polys), len(mons))
-for i, poly in enumerate(rows_polys):
-    for j, mon in enumerate(mons):
-        M2[i, j] = poly.monomial_coefficient(mon)
-print(f"\nM_2 ({M2.nrows()} x {M2.ncols()}):")
-print(M2)
-
-# Now extend to degree D=3: multiply each f_i by {1, x, y}
-D = 3
-mons3 = [x^3, x^2*y, x*y^2, y^3, x^2, x*y, y^2, x, y, R(1)]
-multipliers = [R(1), x, y]
-
-rows_polys3 = []
-row_labels = []
-for f, name in [(f1, 'f1'), (f2, 'f2')]:
-    for m in multipliers:
-        rows_polys3.append(m * f)
-        row_labels.append(f"{m}*{name}")
-
-M3 = matrix(F, len(rows_polys3), len(mons3))
-for i, poly in enumerate(rows_polys3):
-    for j, mon in enumerate(mons3):
-        M3[i, j] = poly.monomial_coefficient(mon)
-
-print(f"\nDegree-{D} Macaulay matrix")
-print(f"Monomials: {mons3}")
-print(f"Row labels: {row_labels}")
-print(f"\nM_3 ({M3.nrows()} x {M3.ncols()}):")
-print(M3)
-print(f"Rank: {M3.rank()}")
-print(f"\nRow echelon form:")
-print(M3.echelon_form())
-`} />
+<SageCell code={groebnerToySystemCode} />
 <!-- prettier-ignore-end -->
 
 ## S-polynomials
@@ -178,37 +132,7 @@ S-polynomial does not reduce to zero, its remainder is a new polynomial that
 must be added to the basis. This is the core loop of Buchberger's algorithm.
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-# S-polynomial computation
-p = 101
-F = GF(p)
-R.<x, y, z> = PolynomialRing(F, order='degrevlex')
-
-f = 2*x^3*y + 3*x*y^2 + 5
-g = x^2*y^2 + 4*y^3 + 1
-
-print(f"f = {f}")
-print(f"g = {g}")
-print(f"LM(f) = {f.lm()}")
-print(f"LM(g) = {g.lm()}")
-
-# Compute S-polynomial manually
-L = lcm(f.lm(), g.lm())
-print(f"lcm(LM(f), LM(g)) = {L}")
-
-S_fg = (L // f.lt()) * f - (L // g.lt()) * g
-print(f"\nS(f, g) = {S_fg}")
-print(f"Degree of S(f,g): {S_fg.degree()}")
-print(f"(Leading terms cancelled: degree dropped from {L.degree()})")
-
-# Verify with Sage's built-in
-# Compute Groebner basis of {f, g} to see S-polynomial reduction in action
-I = R.ideal([f, g])
-G = I.groebner_basis()
-print(f"\nGroebner basis of <f, g>:")
-for i, gi in enumerate(G):
-    print(f"  g{i+1}: {gi}")
-`} />
+<SageCell code={groebnerDegreeFallsCode} />
 <!-- prettier-ignore-end -->
 
 ## Solving algorithms
@@ -255,34 +179,7 @@ SageMath's default algorithm (a variant of F4). We solve a system where the
 S-box is $x^5$ and the linear layer is a simple matrix over $\mathbb{F}_{101}$.
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-# 1-round AO system over a small field
-p = 101
-F = GF(p)
-R.<x, y, z> = PolynomialRing(F, order='degrevlex')
-alpha = 5
-
-# One round: S-box then linear mix then constants
-# Output = M * S-box(input) + constants
-# We set up equations: output is known, solve for input
-f1 = x^alpha + 2*y^alpha + 3*z^alpha - 42
-f2 = 3*x^alpha + y^alpha + 2*z^alpha - 17
-f3 = 2*x^alpha + 3*y^alpha + z^alpha - 89
-
-I = R.ideal([f1, f2, f3])
-G = I.groebner_basis()
-
-print(f"System: 3 equations of degree {alpha} in 3 variables over F_{p}")
-print(f"Groebner basis has {len(G)} elements:\n")
-for i, g in enumerate(G):
-    print(f"  g{i+1} (degree {g.degree()}): {g}")
-
-# The last element is univariate in z -> we can read off solutions
-print(f"\nVariety (solutions):")
-V = I.variety()
-for sol in V:
-    print(f"  x={sol[x]}, y={sol[y]}, z={sol[z]}")
-`} />
+<SageCell code={groebnerSemiRegularityCode} />
 <!-- prettier-ignore-end -->
 
 #### Example: Macaulay matrix construction
@@ -292,52 +189,7 @@ row-reducing them. Here we build the degree-$D$ Macaulay matrix for a small
 system to illustrate the linear algebra at the core of F4.
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-# Illustrate the Macaulay matrix for a small system
-p = 101
-F = GF(p)
-R.<x, y> = PolynomialRing(F, order='degrevlex')
-
-# Simple system: two quadratic equations
-f1 = x^2 + 3*x*y + 2*y^2 - 1
-f2 = 2*x^2 + x*y + y^2 - 3
-
-# Build Macaulay matrix at degree D=3
-# Multiply each equation by all monomials up to degree D - deg(f_i)
-D = 3
-mons_D = R.monomials_of_degree(D) + R.monomials_of_degree(D-1) + R.monomials_of_degree(D-2) + R.monomials_of_degree(D-3)
-# Get all monomials up to degree D, sorted by degrevlex
-all_mons = sorted(set(mons_D), key=lambda m: (-m.degree(), str(m)))
-
-# Multipliers for f1 (degree 2): multiply by monomials of degree <= 1
-mult_f1 = [R(1), x, y]
-# Multipliers for f2: same
-mult_f2 = [R(1), x, y]
-
-rows = []
-for m in mult_f1:
-    rows.append(m * f1)
-for m in mult_f2:
-    rows.append(m * f2)
-
-# Build the matrix
-M_mac = matrix(F, len(rows), len(all_mons))
-for i, poly in enumerate(rows):
-    for j, mon in enumerate(all_mons):
-        M_mac[i, j] = poly.monomial_coefficient(mon)
-
-print(f"Macaulay matrix at degree D={D}:")
-print(f"  {M_mac.nrows()} rows (polynomial multiples)")
-print(f"  {M_mac.ncols()} columns (monomials)")
-print(f"  Rank: {M_mac.rank()}")
-print(f"\nMonomials: {all_mons}")
-print(f"\nMatrix:")
-print(M_mac)
-
-# Row-reduce to find the Groebner basis
-print(f"\nRow echelon form:")
-print(M_mac.echelon_form())
-`} />
+<SageCell code={groebnerPoseidonSystemCode} />
 <!-- prettier-ignore-end -->
 
 #### Example: scaling with rounds
@@ -347,67 +199,7 @@ harder to solve. This example builds the system for a 2-round and 3-round
 Poseidon-like permutation and measures the Groebner basis computation.
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-import time
-
-p = 101
-F = GF(p)
-alpha = 5
-t = 2  # state width (small for tractability)
-
-# MDS matrix
-M = matrix(F, [[2, 1], [1, 3]])
-
-def build_system(n_rounds):
-    """Build polynomial system for n_rounds of a Poseidon-like permutation."""
-    # Variables: input (layer 0) + intermediates (layers 1..n_rounds-1)
-    n_vars = t * n_rounds  # intermediate + input vars (output is fixed)
-    var_names = []
-    for r in range(n_rounds):
-        for j in range(t):
-            var_names.append(f's{r}_{j}')
-    R = PolynomialRing(F, var_names, order='degrevlex')
-    vs = R.gens()
-
-    # Group variables by round
-    layers = []
-    for r in range(n_rounds):
-        layers.append([vs[r*t + j] for j in range(t)])
-
-    # Fixed output (target)
-    target = [F(42), F(17)]
-
-    equations = []
-    for r in range(1, n_rounds):
-        # Round r: layers[r] = M * S-box(layers[r-1]) + constants
-        sbox_out = [layers[r-1][j]^alpha for j in range(t)]
-        for j in range(t):
-            lhs = layers[r][j]
-            rhs = sum(M[j,k] * sbox_out[k] for k in range(t)) + F(r*t + j + 1)
-            equations.append(lhs - rhs)
-
-    # Final round: target = M * S-box(layers[-1]) + constants
-    sbox_out = [layers[-1][j]^alpha for j in range(t)]
-    for j in range(t):
-        rhs = sum(M[j,k] * sbox_out[k] for k in range(t)) + F(n_rounds*t + j + 1)
-        equations.append(target[j] - rhs)
-
-    return R, equations
-
-for n_rounds in [2, 3, 4]:
-    R, eqs = build_system(n_rounds)
-    n_vars = len(R.gens())
-    n_eqs = len(eqs)
-
-    t0 = time.time()
-    I = R.ideal(eqs)
-    G = I.groebner_basis()
-    elapsed = time.time() - t0
-
-    print(f"Rounds: {n_rounds} | Vars: {n_vars} | Eqs: {n_eqs} | "
-          f"GB size: {len(G)} | Max degree: {max(g.degree() for g in G)} | "
-          f"Time: {elapsed:.3f}s")
-`} />
+<SageCell code={groebnerReducedPoseidonCode} />
 <!-- prettier-ignore-end -->
 
 ### F5 (Faugere, 2002)
@@ -520,46 +312,7 @@ Hilbert function. When the Hilbert function reaches zero, the computation is
 complete. The degree at which this happens is the solving degree.
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-# Compute Hilbert series for a polynomial ideal
-p = 101
-F = GF(p)
-R.<x, y, z> = PolynomialRing(F, order='degrevlex')
-
-# System of 3 quadratic equations in 3 variables
-f1 = x^2 + 2*y*z + 3
-f2 = y^2 + x*z + 7
-f3 = z^2 + x*y + 11
-
-I = R.ideal([f1, f2, f3])
-
-# Compute Groebner basis first
-G = I.groebner_basis()
-print(f"Groebner basis has {len(G)} elements")
-print(f"Max degree in GB: {max(g.degree() for g in G)}")
-
-# Hilbert series of the quotient ring R/I
-# For zero-dimensional ideals, this is a polynomial (finite sum)
-HS = R.quotient(I).hilbert_series()
-print(f"\nHilbert series of R/I:")
-print(f"  HS(z) = {HS}")
-
-# The number of solutions equals HS(1)
-print(f"\nHS(1) = {HS(1)} (number of solutions, counting multiplicity)")
-
-# Predicted Hilbert series under regularity assumption
-# For 3 equations of degree 2 in 3 variables:
-# HS(z) = (1-z^2)^3 / (1-z)^3 = (1+z)^3 = 1 + 3z + 3z^2 + z^3
-S.<z> = PowerSeriesRing(QQ, default_prec=10)
-HS_predicted = prod(1 - z^2 for _ in range(3)) / (1 - z)^3
-print(f"\nPredicted HS (regular assumption):")
-print(f"  {HS_predicted}")
-print(f"  First non-positive coeff at degree: ", end="")
-for d, c in enumerate(HS_predicted.list()):
-    if c <= 0:
-        print(f"{d} (solving degree)")
-        break
-`} />
+<SageCell code={groebnerSolvingDegreeCode} />
 <!-- prettier-ignore-end -->
 
 ### Castelnuovo-Mumford regularity
@@ -649,28 +402,7 @@ functions are **not semi-regular** and can be solved faster:
   Groebner basis attacks on reduced-round Poseidon
 
 <!-- prettier-ignore-start -->
-<SageCell code={`
-# SageMath: Groebner basis on a toy system
-# (illustrative - real attacks use much larger fields)
-p = 101
-F = GF(p)
-R = PolynomialRing(F, 'x,y,z', order='degrevlex')
-x, y, z = R.gens()
-
-# Toy 1-round system: S-box x^5, simple linear layer
-alpha = 5
-# Round: apply S-box then add constants
-f1 = x^alpha + 2*y^alpha + 3*z^alpha - 42
-f2 = 3*x^alpha + y^alpha + 2*z^alpha - 17
-f3 = 2*x^alpha + 3*y^alpha + z^alpha - 89
-
-I = R.ideal([f1, f2, f3])
-print("Computing Groebner basis...")
-G = I.groebner_basis()
-print(f"Groebner basis has {len(G)} elements")
-for g in G:
-    print(f"  degree {g.degree()}: {g}")
-`} />
+<SageCell code={groebnerPracticalComplexityCode} />
 <!-- prettier-ignore-end -->
 
 ## References
