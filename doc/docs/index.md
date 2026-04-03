@@ -5,9 +5,33 @@ slug: /
 
 # Arithmetization-Oriented Hash Functions
 
-This is a research wiki on the security of **arithmetization-oriented (AO) hash
-functions**, hash functions designed for efficient evaluation inside arithmetic
-circuits, zero-knowledge proof systems, and other algebraic settings.
+This is a research wiki on the security of **arithmetization-oriented (AO)
+cryptographic primitives**: hash functions, permutations, ciphers, and signature
+schemes designed for efficient evaluation inside arithmetic circuits,
+zero-knowledge proof systems, MPC protocols, and other algebraic settings.
+
+## Context and motivation
+
+This wiki is part of [BaDaaS](https://github.com/BaDaaS)'s research effort into
+the cryptanalysis of AO constructions. It is related to the
+[Poseidon initiative](https://www.poseidon-initiative.info/) by the Ethereum
+Foundation, which coordinates security analysis of Poseidon and related
+primitives used across the Ethereum ecosystem.
+
+At BaDaaS, we are interested in the **cryptanalysis of AO constructions** across
+the board. As a starting point for our research, we are building this **live
+wiki** with:
+
+- **Documentation** of all known AO primitive designs, their security claims,
+  and the attacks published against them.
+- **Sage code** providing reference implementations, attack reproductions, and
+  algebraic experiments.
+- **Industrial usage mapping** showing which primitives are deployed in which
+  proof systems and protocols.
+- **Resource gathering** from research papers, but also from textbooks on
+  computational algebra, Groebner bases, and solving multivariate polynomial
+  systems over finite fields, to identify whether unexplored mathematical
+  landscapes could yield new cryptanalytic techniques.
 
 ## Scope
 
@@ -16,7 +40,7 @@ evaluation on CPUs. They rely on bitwise operations (XOR, AND, bit rotation)
 that are cheap in hardware but expensive inside arithmetic circuits over large
 prime fields $\mathbb{F}_p$.
 
-AO hash functions replace bitwise operations with **field arithmetic**:
+AO primitives replace bitwise operations with **field arithmetic**:
 multiplications, exponentiations, and linear maps over $\mathbb{F}_p$. This
 makes them orders of magnitude more efficient inside SNARKs, STARKs, and other
 proof systems, but it also changes the threat model. The security analysis of

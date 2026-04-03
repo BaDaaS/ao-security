@@ -52,6 +52,62 @@ sidebar_position: 100
 - [ ] Adomnicai. "Towards Practical Multi-Party Hash Chains using AO
       Primitives - With Applications to Threshold Hash-Based Signatures"
       [ePrint 2025/2290](https://eprint.iacr.org/2025/2290)
+- [ ] Albrecht, Grassi, Rechberger, Roy, Tiessen. "MiMC: Efficient
+      Encryption and Cryptographic Hashing with Minimal Multiplicative
+      Complexity" (ASIACRYPT 2016)
+      [ePrint 2016/492](https://eprint.iacr.org/2016/492)
+- [ ] Albrecht, Grassi, Perrin, Ramacher, Rechberger, Rotaru, Roy,
+      Schofnegger. "Feistel Structures for MPC, and More" (GMiMC,
+      ESORICS 2019)
+      [ePrint 2019/397](https://eprint.iacr.org/2019/397)
+- [ ] Grassi, Luftenegger, Rechberger, Rotaru, Schofnegger. "On a
+      Generalization of Substitution-Permutation Networks: The HADES Design
+      Strategy"
+      [ePrint 2019/1107](https://eprint.iacr.org/2019/1107)
+- [ ] Grassi, Luftenegger, Rechberger, Rotaru, Schofnegger. "Mind the
+      Middle Layer: The HADES Design Strategy Revisited"
+      [ePrint 2020/179](https://eprint.iacr.org/2020/179)
+- [ ] Ashur, Dhooghe. "MARVELlous: a STARK-Friendly Family of
+      Cryptographic Primitives" (Jarvis, Friday, Vision, Rescue)
+      [ePrint 2018/1098](https://eprint.iacr.org/2018/1098)
+- [ ] Ashur, Mahzoun, Posen, Willems. "Rescue-Prime Optimized" (RPO)
+      [ePrint 2022/1577](https://eprint.iacr.org/2022/1577)
+- [ ] Ashur, Bhati, Al Kindi, Mahzoun, Perrin. "XHash: Efficient
+      STARK-friendly Hash Function"
+      [ePrint 2023/1045](https://eprint.iacr.org/2023/1045)
+- [ ] Dobraunig, Grassi, Guinet, Kuijsters. "Ciminion: Symmetric
+      Encryption Based on Toffoli-Gates over Large Finite Fields"
+      (EUROCRYPT 2021)
+      [ePrint 2021/267](https://eprint.iacr.org/2021/267)
+- [ ] Grassi, Oygarden, Schofnegger, Walch. "From Farfalle to Megafono
+      via Ciminion: The PRF Hydra for MPC Applications" (EUROCRYPT 2023)
+      [ePrint 2022/342](https://eprint.iacr.org/2022/342)
+- [ ] Dobraunig, Kales, Rechberger, Schofnegger, Zaverucha. "Shorter
+      Signatures Based on Tailor-Made Minimalist Symmetric-Key Crypto"
+      (RAIN/Rainier, CCS 2022)
+      [ePrint 2021/692](https://eprint.iacr.org/2021/692)
+- [ ] Kim, Ha, Son, Lee, Moon, Lee, Lee, Kwon, Cho, Yoon, Cho. "AIM:
+      Symmetric Primitive for Shorter Signatures with Stronger Security"
+      (AIMer, CCS 2023)
+      [ePrint 2022/1387](https://eprint.iacr.org/2022/1387)
+- [ ] Szepieniec. "On the Use of the Legendre Symbol in Symmetric Cipher
+      Design" (Grendel)
+      [ePrint 2021/984](https://eprint.iacr.org/2021/984)
+- [ ] Roy, Steiner et al. "Arion: Arithmetization-Oriented Permutation and
+      Hashing from Generalized Triangular Dynamical Systems"
+      [arXiv 2303.04639](https://arxiv.org/abs/2303.04639)
+- [ ] Bettale, Kahrobaei, Perret, Verbel. "Biscuit: New MPCitH Signature
+      Scheme from Structured Multivariate Polynomials"
+      [ePrint 2023/1760](https://eprint.iacr.org/2023/1760)
+
+## Reading queue: algebraic VDFs
+
+- [ ] Lenstra, Wesolowski. "A random zoo: sloth, unicorn, and trx"
+      (Sloth, foundational slow-hash VDF)
+      [ePrint 2015/366](https://eprint.iacr.org/2015/366)
+- [ ] Khovratovich, Maller, Tiwari. "MinRoot: Candidate Sequential
+      Function for Ethereum VDF"
+      [ePrint 2022/1626](https://eprint.iacr.org/2022/1626)
 
 ## Reading queue: AO primitive signatures (Legendre/Power-Residue PRF)
 
@@ -297,6 +353,28 @@ Researchers appearing across the papers above, grouped by primary field.
 | Gokce Duzyol | Bogazici University | ZK-friendly hash functions, finite fields |
 | Kamil Otal | TUBITAK BILGEM | Symmetric crypto, coding theory |
 | Alexandre Adomnicai | prev. CryptoNext / NTU Singapore | Crypto engineering, lightweight crypto, efficient implementations |
+| Martin Albrecht | King's College London / SandboxAQ | Computational algebra, lattice crypto, AO design (MiMC) |
+| Siemen Dhooghe | KU Leuven (COSIC) | Symmetric crypto (MARVELlous: Jarvis, Friday, Vision, Rescue) |
+| Amit Singh Bhati | KU Leuven (COSIC) | Symmetric crypto (XHash co-author) |
+| Christoph Dobraunig | Intel Labs / TU Graz | Symmetric crypto (Ciminion, RAIN/Rainier, ASCON) |
+| Anna Guinet | (Ciminion co-author) | AO cipher design |
+| Daniel Kuijsters | (Ciminion co-author) | AO cipher design |
+| Daniel Kales | TU Graz | Post-quantum signatures (RAIN/Rainier) |
+| Greg Zaverucha | Microsoft Research | Post-quantum signatures (RAIN/Rainier, Picnic) |
+| Dragos Rotaru | NordVPN / prev. KU Leuven | MPC, HADES design strategy, GMiMC |
+| Sebastian Ramacher | AIT Austrian Inst. of Technology | MPC-friendly crypto (GMiMC) |
+| Tyge Tiessen | prev. DTU Denmark | Symmetric crypto (MiMC co-author) |
+| Seongkwang Kim | Samsung SDS | AIM/AIMer designer |
+| Byeonghak Lee | Samsung SDS | AIM/AIMer designer |
+| Dukjae Moon | Samsung SDS | AIM/AIMer designer |
+| Sangyup Lee | Samsung SDS | AIM/AIMer designer |
+| Jihoon Kwon | Samsung SDS | AIM/AIMer designer |
+| Jihoon Cho | Samsung SDS | AIM/AIMer designer |
+| Hyojin Yoon | Samsung SDS | AIM/AIMer designer |
+| Joungmo Cho | Samsung SDS | AIM/AIMer designer |
+| Mary Maller | Ethereum Foundation / PQShield | Crypto (MinRoot VDF co-author) |
+| Pratyush Ranjan Tiwari | Johns Hopkins / prev. KU Leuven | Crypto (MinRoot VDF co-author) |
+| Arjen K. Lenstra | EPFL | Computational number theory (Sloth VDF) |
 
 ### AO cryptanalysts (algebraic attacks, Groebner bases)
 
