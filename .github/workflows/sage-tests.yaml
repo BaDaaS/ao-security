@@ -25,13 +25,10 @@ jobs:
   sage-tests:
     name: Run SageMath files
     runs-on: ubuntu-latest
+    container:
+      image: sagemath/sagemath:latest
     steps:
       - uses: actions/checkout@v6
-
-      - name: Install SageMath
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sagemath
 
       - name: Run all sage files
         run: .github/scripts/run-sage-tests.sh sage
