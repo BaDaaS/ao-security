@@ -11,7 +11,7 @@ a novel approach to building the nonlinear layer. Instead of applying a simple
 power map, Anemoi uses a 2-branch open Flystel that provides both efficiency and
 strong algebraic properties.
 
-- **Authors**: Bouvier, Briaud, Canteaut, Parny, Passelague, Ribatet
+- **Authors**: Bouvier, Briaud, Chaidos, Perrin, Salen, Velichkov, Willems
 - **Year**: 2022
 - **S-box**: Open Flystel (based on $x^{\alpha}$ and $x^{1/\alpha}$)
 - **Structure**: SPN with Flystel nonlinear layer
@@ -73,7 +73,7 @@ Reference implementation: `sage/anemoi/flystel.sage`
 
 ## References
 
-- Bouvier, Briaud, Canteaut, Parny, Passelague, Ribatet. "New Design Techniques
-  for Efficient Arithmetization-Oriented Hash Functions: Anemoi Permutations and
-  Jive Compression Mode" (CRYPTO 2023)
+- Bouvier, Briaud, Chaidos, Perrin, Salen, Velichkov, Willems. "New Design
+  Techniques for Efficient Arithmetization-Oriented Hash Functions: Anemoi
+  Permutations and Jive Compression Mode" (CRYPTO 2023)
   [ePrint 2022/840](https://eprint.iacr.org/2022/840)
