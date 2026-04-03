@@ -33,7 +33,7 @@ def open_flystel(x, y, alpha, beta, gamma, delta, F):
 
 # --- Example usage ---
 if __name__ == "__main__":
-    p = 101
+    p = 97
     F = GF(p)
     alpha = 5
 

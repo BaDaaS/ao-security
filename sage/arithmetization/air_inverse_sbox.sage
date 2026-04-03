@@ -1,7 +1,7 @@
 # SageMath: demonstrate the inverse S-box advantage in AIR
 # Both directions use the same constraint degree
 
-p = 101
+p = 97
 F = GF(p)
 alpha = 5
 alpha_inv = inverse_mod(alpha, p - 1)

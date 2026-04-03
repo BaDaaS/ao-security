@@ -1,4 +1,4 @@
-# Compute Hilbert series for a polynomial ideal
+# Estimate solving degree via the Hilbert regularity index
 p = 101
 F = GF(p)
 R.<x, y, z> = PolynomialRing(F, order='degrevlex')
@@ -15,16 +15,9 @@ G = I.groebner_basis()
 print(f"Groebner basis has {len(G)} elements")
 print(f"Max degree in GB: {max(g.degree() for g in G)}")
 
-# Hilbert series of the quotient ring R/I
-# For zero-dimensional ideals, this is a polynomial (finite sum)
-HS = R.quotient(I).hilbert_series()
-print(f"\nHilbert series of R/I:")
-print(f"  HS(z) = {HS}")
-
-# The number of solutions equals HS(1)
-print(f"\nHS(1) = {HS(1)} (number of solutions, counting multiplicity)")
-
 # Predicted Hilbert series under regularity assumption
+# For m equations of degree d in n variables:
+# HS(z) = (1-z^d)^m / (1-z)^n
 # For 3 equations of degree 2 in 3 variables:
 # HS(z) = (1-z^2)^3 / (1-z)^3 = (1+z)^3 = 1 + 3z + 3z^2 + z^3
 S.<z> = PowerSeriesRing(QQ, default_prec=10)
@@ -32,7 +25,14 @@ HS_predicted = prod(1 - z^2 for _ in range(3)) / (1 - z)^3
 print(f"\nPredicted HS (regular assumption):")
 print(f"  {HS_predicted}")
 print(f"  First non-positive coeff at degree: ", end="")
-for d, c in enumerate(HS_predicted.list()):
+coeffs = HS_predicted.list()
+found = False
+for d, c in enumerate(coeffs):
     if c <= 0:
         print(f"{d} (solving degree)")
+        found = True
         break
+if not found:
+    # For zero-dimensional ideals, the solving degree is
+    # the index of the first zero coefficient
+    print(f"{len(coeffs)} (all coefficients positive up to degree {len(coeffs)-1})")

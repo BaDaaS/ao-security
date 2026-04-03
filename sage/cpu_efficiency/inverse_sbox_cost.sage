@@ -2,7 +2,7 @@
 
 p = 2^64 - 2^32 + 1  # Goldilocks
 F = GF(p)
-alpha = 5
+alpha = 7  # smallest alpha coprime to p-1 for Goldilocks (5 divides p-1)
 alpha_inv = inverse_mod(alpha, p - 1)
 
 print(f"Field: Goldilocks (p = 2^64 - 2^32 + 1)")
@@ -27,7 +27,7 @@ print(f"  Binary length: {len(inv_bits)} bits")
 print(f"  Hamming weight: {sum(inv_bits)}")
 print(f"  Multiplications: {inv_muls}")
 print()
-print(f"Ratio: inverse is {inv_muls / fwd_muls:.0f}x more expensive on CPU")
+print(f"Ratio: inverse is {int(inv_muls / fwd_muls)}x more expensive on CPU")
 print()
 
 # Verify correctness

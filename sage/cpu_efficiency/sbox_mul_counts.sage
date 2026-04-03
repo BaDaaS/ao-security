@@ -18,7 +18,10 @@ def count_muls_inverse_power(alpha, p):
     Count field multiplications for x^(1/alpha) mod p.
     The inverse exponent is alpha_inv = inverse_mod(alpha, p-1),
     which is typically close to p in size.
+    Returns None if alpha is not invertible mod p-1.
     """
+    if gcd(alpha, p - 1) != 1:
+        return None
     alpha_inv = inverse_mod(alpha, p - 1)
     bits = ZZ(alpha_inv).digits(2)
     squarings = len(bits) - 1
@@ -38,7 +41,9 @@ for alpha in [3, 5, 7, 11]:
     fwd = count_muls_power(alpha)
     inv_bn = count_muls_inverse_power(alpha, p_bn254)
     inv_gold = count_muls_inverse_power(alpha, p_gold)
-    print(f"{alpha:>6} | {fwd:>13} | {inv_bn:>18} | {inv_gold:>17}")
+    inv_bn_str = str(inv_bn) if inv_bn is not None else "N/A (not coprime)"
+    inv_gold_str = str(inv_gold) if inv_gold is not None else "N/A (not coprime)"
+    print(f"{alpha:>6} | {fwd:>13} | {inv_bn_str:>18} | {inv_gold_str:>17}")
 
 print()
 print("Key observation: the inverse S-box is ~100x more expensive on CPU")
