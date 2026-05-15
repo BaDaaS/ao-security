@@ -1,0 +1,84 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{default}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+
+\title{An Open Wiki on AO Hash Function Security}
+\subtitle{ethproofs}
+\author{Danny Willems}
+\date{May 15, 2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage{}
+\end{frame}
+
+\begin{frame}{Why an AO security wiki?}
+  \begin{itemize}
+    \item Arithmetization-oriented (AO) hash functions:
+          Poseidon, Rescue, Griffin, Anemoi, Tip5, Monolith, MiMC, \ldots
+    \item Security analysis is scattered across papers, tickets,
+          and informal notes. No single place to look it up.
+    \item Goal: a \textbf{live, citable, open} reference for the
+          cryptanalysis of AO primitives.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Current state of the wiki}
+  \begin{itemize}
+    \item \textbf{Primitive pages.} One per AO design, with the
+          specification, security claims, and a chronological list of
+          published attacks.
+    \item \textbf{Three analysis axes} for each primitive:
+          arithmetization cost (R1CS, AIR, PlonK-ish), CPU cost,
+          cryptanalysis (algebraic, Groebner, differential,
+          statistical).
+    \item \textbf{Industrial usage map.} Which primitive is used by
+          which proof system, which protocol, which deployment.
+    \item \textbf{Resource gathering.} Papers and textbooks on
+          Groebner bases and multivariate solving.
+  \end{itemize}
+  \vspace{0.3em}
+  \small \textbf{Preliminary work.} For now mostly bibliography
+  gathering; the structure still needs to be reorganized.
+  AI is used to go across the literature faster, including via
+  Papyrus (\url{https://papyrus.badaas.eu/about}).
+\end{frame}
+
+\begin{frame}{Three directions for the project}
+  \begin{itemize}
+    \item \textbf{Formalization in Lean.} Mechanize all definitions,
+          lemmas, and theorems used to analyse AO primitives.
+          Verify the pen-and-paper proofs. Track the open questions
+          explicitly.
+    \item \textbf{Reproducible attacks in Sage.} A centralized
+          open-source repository of executable attack scripts for
+          every published attack, in the spirit of \texttt{ECC\_Attacks}
+          for elliptic curves.
+    \item \textbf{New cryptanalysis.} Following from the first two:
+          explore underused directions, e.g.\ geometry-based
+          attacks and new Groebner basis techniques.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Status and how to contribute}
+  \begin{itemize}
+    \item Open source, open to PRs: corrections, new primitives,
+          new attacks, missing references.
+    \item Wiki: \url{https://badaas.eu/ao-security}
+    \item Repo: \url{https://github.com/BaDaaS/ao-security}
+  \end{itemize}
+  \vspace{1em}
+  \centering
+  \large Thank you. Questions?
+\end{frame}
+
+\end{document}
