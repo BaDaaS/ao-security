@@ -21,20 +21,4 @@ zero-knowledge proof systems, and other algebraic settings.
 - Algebraic cryptanalysis techniques
 - Security parameter selection
 
-## Development
-
-```bash
-# Install dependencies
-make setup
-
-# Run dev server
-make dev
-
-# Build for production
-make build
-
-# Format markdown
-make format
-```
-
 Built with [Docusaurus](https://docusaurus.io/).
