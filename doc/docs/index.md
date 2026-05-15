@@ -12,15 +12,13 @@ zero-knowledge proof systems, MPC protocols, and other algebraic settings.
 
 ## Context and motivation
 
-This wiki is part of [BaDaaS](https://github.com/BaDaaS)'s research effort into
-the cryptanalysis of AO constructions. It is related to the
-[Poseidon initiative](https://www.poseidon-initiative.info/) by the Ethereum
-Foundation, which coordinates security analysis of Poseidon and related
-primitives used across the Ethereum ecosystem.
+The cryptanalysis of AO constructions is a global research effort, with
+contributions from academic groups and industry teams across the world. This
+wiki aims to be a shared, open reference for that effort: a single place to look
+up what is known about each primitive, what has been broken, and what remains
+open.
 
-At BaDaaS, we are interested in the **cryptanalysis of AO constructions** across
-the board. As a starting point for our research, we are building this **live
-wiki** with:
+As a starting point, we are building this **live wiki** with:
 
 - **Documentation** of all known AO primitive designs, their security claims,
   and the attacks published against them.
@@ -75,8 +73,8 @@ evaluating each primitive inside the three main proof system families:
 
 ### CPU efficiency
 
-The [CPU efficiency section](cpu-efficiency/) analyses the native performance
-of each primitive outside of circuits: field arithmetic costs, the expense of
+The [CPU efficiency section](cpu-efficiency/) analyses the native performance of
+each primitive outside of circuits: field arithmetic costs, the expense of
 inverse S-boxes, and the impact of field choice on throughput.
 
 ### Cryptanalysis
