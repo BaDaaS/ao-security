@@ -10,7 +10,7 @@
 \usepackage{hyperref}
 \usepackage{url}
 
-\title{An Open Wiki on AO Hash Function Security}
+\title{An open wiki on AO primitives}
 \subtitle{ethproofs}
 \author{Danny Willems}
 \date{May 15, 2026}
@@ -23,12 +23,19 @@
 
 \begin{frame}{Why a wiki?}
   \begin{itemize}
-    \item Arithmetization-oriented (AO) hash functions:
+    \item Started as a personal research initiative during a break to go deeper
+	  into the maths and gather the whole literature.
+    \item Many AO hash functions popped up in the last years:
           Poseidon, Rescue, Griffin, Anemoi, Tip5, Monolith, MiMC, \ldots
-    \item Security analysis is scattered across papers, PhD thesis, GitHub
-	    issues, informal notes, group discussions, videos, etc. No single place to look it up.
-    \item Goal: a \textbf{live, citable, open} reference for the
-          cryptanalysis of AO primitives.
+    \item If the industry continues to rely on non-binary fields
+	(relatively small or large) and require more AO primitives, we will need
+	to keep track of the research work and the usage of the
+        primitives in the publicly available products.
+    \item Security analysis, mathematics and algorithms are scattered across
+	papers, PhD thesis, GitHub issues, informal notes, group discussions,
+	videos, etc. No single place to look it up.
+    \item Goal: a \textbf{centralised} and \textbf{live} reference for the
+	cryptanalysis of AO primitives, with Lean4 and Sage code.
   \end{itemize}
 \end{frame}
 
@@ -40,17 +47,21 @@
     \item \textbf{Three analysis axes} for each primitive:
           arithmetization cost (R1CS, AIR, PlonK-ish), CPU cost,
           cryptanalysis (algebraic, Groebner, differential,
-          statistical).
+	  statistical) with history and code in Sage.
     \item \textbf{Industrial usage map.} Which primitive is used by
           which proof system, which protocol, which deployment.
     \item \textbf{Resource gathering.} Papers and textbooks on
-          Groebner bases and multivariate solving.
+	  Groebner bases, multivariate solving, security analysis, etc from
+	  ePrint and other resources.
   \end{itemize}
   \vspace{0.3em}
   \small \textbf{Preliminary work.} For now mostly bibliography
   gathering; the structure still needs to be reorganized.
   AI is used to go across the literature faster, including via
   Papyrus (\url{https://papyrus.badaas.eu/about}).
+  It \textbf{might} contain errors, and there might be some wrong
+  attributions/references. Please, notify me ASAP if you notice something
+  wrong.
 \end{frame}
 
 \begin{frame}{Three directions for the project}
@@ -63,9 +74,9 @@
           open-source repository of executable attack scripts for
           every published attack, in the spirit of \texttt{ECC\_Attacks}
           for elliptic curves.
-    \item \textbf{New cryptanalysis.} Following from the first two:
-          explore underused directions, e.g.\ geometry-based
-          attacks and new Groebner basis techniques.
+    \item \textbf{New cryptanalysis.} Independently, following from the first two: explore underused directions,
+	    e.g.\ geometry-based attacks, new Groebner basis
+	    techniques, extend the mathematics used in the cryptanalysis.
   \end{itemize}
 \end{frame}
 
@@ -73,7 +84,7 @@
   \begin{itemize}
     \item Open source, open to PRs: corrections, new primitives,
           new attacks, missing references.
-    \item Wiki: \url{https://badaas.eu/ao-security}
+    \item Wiki: \url{https://badaas.be/ao-security}
     \item Repo: \url{https://github.com/BaDaaS/ao-security}
   \end{itemize}
   \vspace{1em}
