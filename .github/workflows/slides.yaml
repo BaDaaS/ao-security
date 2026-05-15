@@ -1,0 +1,69 @@
+name: Build slides
+
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - 'talks/**'
+      - '.github/workflows/slides.yaml'
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches:
+      - main
+    paths:
+      - 'talks/**'
+      - '.github/workflows/slides.yaml'
+
+jobs:
+  list:
+    name: List talks
+    runs-on: ubuntu-latest
+    outputs:
+      talks: ${{ steps.find.outputs.talks }}
+      empty: ${{ steps.find.outputs.empty }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: find
+        name: Find talk directories with a Makefile
+        run: |
+          talks=$(find talks -mindepth 1 -maxdepth 1 -type d \
+            -exec test -f {}/Makefile \; -print 2>/dev/null \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          if [ -z "$talks" ] || [ "$talks" = "[]" ]; then
+            echo "empty=true" >> "$GITHUB_OUTPUT"
+            echo "talks=[]" >> "$GITHUB_OUTPUT"
+          else
+            echo "empty=false" >> "$GITHUB_OUTPUT"
+            echo "talks=$talks" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build ${{ matrix.talk }}
+    needs: list
+    if: needs.list.outputs.empty == 'false'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        talk: ${{ fromJSON(needs.list.outputs.talks) }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: slug
+        name: Compute artifact slug
+        run: |
+          slug=$(echo "${{ matrix.talk }}" | tr '/' '-')
+          echo "slug=$slug" >> "$GITHUB_OUTPUT"
+      - name: Compile slides
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: ${{ matrix.talk }}
+          root_file: slides.tex
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.slug.outputs.slug }}
+          path: ${{ matrix.talk }}/slides.pdf
+          if-no-files-found: error
