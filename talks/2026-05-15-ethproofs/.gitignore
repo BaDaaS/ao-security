@@ -1,2 +1,13 @@
 _build/
 slides.pdf
+
+# LaTeX build artifacts (in case build is run without -output-directory)
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.bak*
+indent.log
