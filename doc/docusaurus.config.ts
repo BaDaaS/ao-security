@@ -11,7 +11,17 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   future: {
-    v4: true,
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+      useCssCascadeLayers: true,
+      siteStorageNamespacing: true,
+      // Adding @docusaurus/faster as a dependency is required to enable
+      // fasterByDefault. Keeping it off until the dep is approved.
+      fasterByDefault: false,
+      // Several .mdx files use <!-- HTML comments -->, which the strict
+      // mdx1CompatDisabledByDefault mode rejects.
+      mdx1CompatDisabledByDefault: false,
+    },
   },
 
   url: 'https://badaas.github.io',
