@@ -16,7 +16,7 @@ jobs:
     name: Shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install shellcheck
         run: sudo apt-get install -y shellcheck
       - name: Run shellcheck
@@ -29,7 +29,7 @@ jobs:
       image: sagemath/sagemath:latest
       options: --user root
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Run all sage files
         run: .github/scripts/run-sage-tests.sh sage

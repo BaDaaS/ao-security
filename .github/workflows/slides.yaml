@@ -25,7 +25,7 @@ jobs:
       talks: ${{ steps.find.outputs.talks }}
       empty: ${{ steps.find.outputs.empty }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: find
         name: Find talk directories with a Makefile
         run: |
@@ -50,7 +50,7 @@ jobs:
       matrix:
         talk: ${{ fromJSON(needs.list.outputs.talks) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: slug
         name: Compute artifact slug
         run: |
