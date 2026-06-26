@@ -62,7 +62,7 @@ jobs:
           working_directory: ${{ matrix.talk }}
           root_file: slides.tex
       - name: Upload PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.slug.outputs.slug }}
           path: ${{ matrix.talk }}/slides.pdf
