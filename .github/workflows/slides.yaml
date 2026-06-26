@@ -57,7 +57,7 @@ jobs:
           slug=$(echo "${{ matrix.talk }}" | tr '/' '-')
           echo "slug=$slug" >> "$GITHUB_OUTPUT"
       - name: Compile slides
-        uses: xu-cheng/latex-action@v3
+        uses: xu-cheng/latex-action@v4
         with:
           working_directory: ${{ matrix.talk }}
           root_file: slides.tex
